@@ -50,6 +50,10 @@
 
 #define APPLICATION_DEFAULT_LORAWAN_CLASS   LORAWAN_CLASS_A
 
+#if defined(BSP_NM180410)
+#define AM_BSP_GPIO_LORA_EN 10
+#endif
+
 static TaskHandle_t application_task_handle;
 
 static void application_setup_task()
@@ -128,6 +132,11 @@ static void application_on_receive(LmHandlerAppData_t *appData, LmHandlerRxParam
 
 static void application_setup_lorawan()
 {
+#if defined(BSP_NM180410)
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_LORA_EN, g_AM_HAL_GPIO_OUTPUT);
+    am_hal_gpio_state_write(AM_BSP_GPIO_LORA_EN, AM_HAL_GPIO_OUTPUT_CLEAR);
+#endif
+
     lorawan_tracing_set(1);
 
     lorawan_network_config(
