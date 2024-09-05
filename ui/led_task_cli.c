@@ -75,6 +75,7 @@ static void help(char *pui8OutBuffer, size_t argc, char **argv)
     am_util_stdio_printf("supported commands are:\r\n");
     am_util_stdio_printf("  off     turn off LED\r\n");
     am_util_stdio_printf("  on      turn on LED\r\n");
+    am_util_stdio_printf("  idle    application layer controlled\r\n");
     am_util_stdio_printf("  effect  <value> [count]\r\n");
     am_util_stdio_printf("          effect values are:\r\n");
     am_util_stdio_printf("            breathing\r\n");
@@ -83,8 +84,8 @@ static void help(char *pui8OutBuffer, size_t argc, char **argv)
     am_util_stdio_printf("            pulse3\r\n");
     am_util_stdio_printf("            sos\r\n");
     am_util_stdio_printf("            off (application layer controlled)\r\n");
-    am_util_stdio_printf("          ui32Repeat LED effect for count;\r\n");
-    am_util_stdio_printf("          indefinitely if count is omitted.\r\n");
+    am_util_stdio_printf("          Repeat LED effect for count;\r\n");
+    am_util_stdio_printf("          indefinitely if count is zero or omitted.\r\n");
     am_util_stdio_printf("\r\n");
 }
 
@@ -98,6 +99,11 @@ static void effect(char *pui8OutBuffer, size_t argc, char **argv)
     else if (strcmp(argv[1], "on") == 0)
     {
         led_command_t command = { LED_COMMAND_ON, 0 };
+        led_send(&command);
+    }
+    else if (strcmp(argv[1], "idle") == 0)
+    {
+        led_command_t command = { LED_COMMAND_IDLE, 0 };
         led_send(&command);
     }
     else if (strcmp(argv[1], "effect") == 0)
@@ -128,10 +134,6 @@ static void effect(char *pui8OutBuffer, size_t argc, char **argv)
         else if (strcmp(argv[2], "sos") == 0)
         {
             effect = led_effect_id[LED_COMMAND_SOS];
-        }
-        else if (strcmp(argv[2], "off") == 0)
-        {
-            effect = LED_COMMAND_OFF;
         }
         else
         {

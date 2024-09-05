@@ -135,7 +135,7 @@ static void application_task_loop(void)
 {
     vTaskDelay(pdMS_TO_TICKS(500));
     // if no LED effect is active, just toggle the LED
-    if (led_status() == 0)
+    if (led_status_get() == LED_STATUS_IDLE)
     {
         am_hal_gpio_state_write(APPLICATION_LED, AM_HAL_GPIO_OUTPUT_TOGGLE);
     }

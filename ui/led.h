@@ -40,6 +40,7 @@ extern "C" {
 
 #define LED_COMMAND_OFF         (1000)
 #define LED_COMMAND_ON          (1001)
+#define LED_COMMAND_IDLE        (1002)
 
 /**
  * @brief Predefined LED effects.
@@ -53,6 +54,12 @@ enum led_command_e {
     LED_COMMAND_SOS,
     LED_COMMAND_MAX,
 };
+
+typedef enum {
+    LED_STATUS_OFF = 0,
+    LED_STATUS_IDLE,
+    LED_STATUS_ACTIVE
+} led_status_t;
 
 #define LED_EFFECT_MAX     (LED_COMMAND_MAX + 8)
 
@@ -134,7 +141,7 @@ extern void led_send(led_command_t *psCommand);
  * 
  * @return 1 if LED effect is active.  0 if idle.
  */
-extern uint32_t led_status();
+extern led_status_t led_status_get();
 
 #ifdef __cplusplus
 }
