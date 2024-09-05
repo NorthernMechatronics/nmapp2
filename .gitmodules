@@ -1,0 +1,3 @@
+[submodule "nmsdk2"]
+	path = nmsdk2
+	url = git@gitlab.northernmechatronics.net:nmi/software/nmsdk2-staging.git
