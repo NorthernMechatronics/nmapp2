@@ -45,8 +45,14 @@
 
 #if defined(BSP_NM180410) || defined(BSP_NM180411)
     #define APPLICATION_LED AM_BSP_GPIO_LED0
+    #define APPLICATION_LED_TIMER_NUMBER    (1)
+    #define APPLICATION_LED_TIMER_SEGMENT   AM_HAL_CTIMER_TIMERA
+    #define APPLICATION_LED_TIMER_INTERRUPT AM_HAL_CTIMER_INT_TIMERA1C0
 #else
     #define APPLICATION_LED AM_BSP_GPIO_LED1
+    #define APPLICATION_LED_TIMER_NUMBER    (2)
+    #define APPLICATION_LED_TIMER_SEGMENT   AM_HAL_CTIMER_TIMERB
+    #define APPLICATION_LED_TIMER_INTERRUPT AM_HAL_CTIMER_INT_TIMERB2C0
 #endif
 
 static TaskHandle_t application_task_handle;
@@ -88,9 +94,9 @@ static void setup_led(void)
 {
     // Configure the LED that is connected to a GPIO with CTIMER output.
     const led_config_t led_cfg = {
-        .ui32Number    = 1,
-        .ui32Segment   = AM_HAL_CTIMER_TIMERA,
-        .ui32Interrupt = AM_HAL_CTIMER_INT_TIMERA1C0,
+        .ui32Number    = APPLICATION_LED_TIMER_NUMBER,
+        .ui32Segment   = APPLICATION_LED_TIMER_SEGMENT,
+        .ui32Interrupt = APPLICATION_LED_TIMER_INTERRUPT,
         .ui32ActiveLow    = 0,
         .ui32Pin       = APPLICATION_LED,
     };
@@ -135,7 +141,7 @@ static void application_task_loop(void)
 {
     vTaskDelay(pdMS_TO_TICKS(500));
     // if no LED effect is active, just toggle the LED
-    if (led_status() == 0)
+    if (led_status_get() == LED_STATUS_IDLE)
     {
         am_hal_gpio_state_write(APPLICATION_LED, AM_HAL_GPIO_OUTPUT_TOGGLE);
     }

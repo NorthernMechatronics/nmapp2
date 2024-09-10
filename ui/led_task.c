@@ -50,6 +50,7 @@ uint32_t led_effect_id[LED_EFFECT_MAX];
 static TaskHandle_t led_task_handle;
 static QueueHandle_t led_task_queue;
 
+static led_status_t led_status;
 static led_config_t led_cfg;
 static const led_effect_t* led_effect_table[LED_EFFECT_MAX];
 static const led_effect_t* led_effect;
@@ -155,6 +156,7 @@ static void led_task_loop(void)
     switch(command.ui32Id)
     {
     case LED_COMMAND_OFF:
+        led_status = LED_STATUS_OFF;
         led_effect = 0;
         am_hal_ctimer_stop(led_cfg.ui32Number, led_cfg.ui32Segment);
         am_hal_gpio_pinconfig(led_cfg.ui32Pin, g_AM_HAL_GPIO_OUTPUT_8);
@@ -162,10 +164,19 @@ static void led_task_loop(void)
         break;
 
     case LED_COMMAND_ON:
+        led_status = LED_STATUS_ACTIVE;
         led_effect = 0;
         am_hal_ctimer_stop(led_cfg.ui32Number, led_cfg.ui32Segment);
         am_hal_gpio_pinconfig(led_cfg.ui32Pin, g_AM_HAL_GPIO_OUTPUT_8);
         am_hal_gpio_state_write(led_cfg.ui32Pin, led_cfg.ui32ActiveLow ? AM_HAL_GPIO_OUTPUT_CLEAR : AM_HAL_GPIO_OUTPUT_SET);
+        break;
+
+    case LED_COMMAND_IDLE:
+        led_status = LED_STATUS_IDLE;
+        led_effect = 0;
+        am_hal_ctimer_stop(led_cfg.ui32Number, led_cfg.ui32Segment);
+        am_hal_gpio_pinconfig(led_cfg.ui32Pin, g_AM_HAL_GPIO_OUTPUT_8);
+        am_hal_gpio_state_write(led_cfg.ui32Pin, led_cfg.ui32ActiveLow ? AM_HAL_GPIO_OUTPUT_SET : AM_HAL_GPIO_OUTPUT_CLEAR);
         break;
 
     default:
@@ -175,7 +186,7 @@ static void led_task_loop(void)
             return;
         }
 
-        if (led_effect == led_effect_table[ui32Id])
+        if ((led_effect == led_effect_table[ui32Id]) && (led_effect_count > 0))
         {
             return;
         }
@@ -183,6 +194,7 @@ static void led_task_loop(void)
         led_effect = led_effect_table[ui32Id];
         if (led_effect)
         {
+            led_status = LED_STATUS_ACTIVE;
             led_effect_sequence_index = 0;
             led_effect_repeat = command.ui32Repeat;
             led_effect_count = led_effect_repeat * led_effect->ui32Period;
@@ -219,6 +231,7 @@ void led_task_create(uint32_t priority)
     led_effect = NULL;
     led_effect_sequence_index = 0;
     led_effect_max_index = 0;
+    led_status = LED_STATUS_IDLE;
 
     led_task_queue = xQueueCreate(10, sizeof(led_command_t));
     xTaskCreate(led_task, "led", 512, 0, priority, &led_task_handle);
@@ -268,7 +281,7 @@ void led_send(led_command_t *psCommand)
     }
 }
 
-uint32_t led_status(void)
+led_status_t led_status_get(void)
 {
-    return (led_effect) ? 1 : 0;
+    return led_status;
 }
