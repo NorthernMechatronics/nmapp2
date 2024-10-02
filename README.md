@@ -105,3 +105,8 @@ trigger a firmware update.
 After successfully updating the firmware, the pop up window will close automatically. If there is an error during flashing, the window will pop up again with an error file.
 
 <img src="doc/res/app_msd.png" width="700">
+
+## Where to Next
+
+[Explore NMI's reference applications](https://github.com/NorthernMechatronics) for further examples on setting up wireless communications, managing application priorities, sensor interfacing, and more!
+
