@@ -83,7 +83,6 @@ static void help(char *pui8OutBuffer, size_t argc, char **argv)
     am_util_stdio_printf("            pulse2\r\n");
     am_util_stdio_printf("            pulse3\r\n");
     am_util_stdio_printf("            sos\r\n");
-    am_util_stdio_printf("            off (application layer controlled)\r\n");
     am_util_stdio_printf("          Repeat LED effect for count;\r\n");
     am_util_stdio_printf("          indefinitely if count is zero or omitted.\r\n");
     am_util_stdio_printf("\r\n");
