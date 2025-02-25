@@ -40,6 +40,8 @@
 #include "button.h"
 #include "led.h"
 
+#include "gpio_cli.h"
+
 #include "application_task.h"
 #include "application_task_cli.h"
 
@@ -56,22 +58,36 @@
 #endif
 
 static TaskHandle_t application_task_handle;
+static uint32_t application_led_handle;
 static uint32_t current_led_effect;
 
 // Button press handler to cycle through all the LED effects.
 static void on_button_pressed(void)
 {
-    current_led_effect = (current_led_effect + 1) % (LED_COMMAND_MAX + 1);
-    if (current_led_effect < LED_COMMAND_MAX)
+    current_led_effect = (current_led_effect + 1) % (LED_EFFECT_BUILTIN_MAX + 1);
+    if (current_led_effect < LED_EFFECT_BUILTIN_MAX)
     {
-        led_command_t command = { .ui32Id = current_led_effect, .ui32Repeat = 0 };
+        led_command_t command = {
+            .ui32Handle = application_led_handle,
+            .ui32Id = current_led_effect,
+            .ui32Repeat = 0
+        };
         led_send(&command);
     }
     else
     {
-        led_command_t command = { .ui32Id = LED_COMMAND_OFF, .ui32Repeat = 0 };
+        led_command_t command = {
+            .ui32Handle = application_led_handle,
+            .ui32Id = LED_EFFECT_IDLE,
+            .ui32Repeat = 0
+        };
         led_send(&command);
     }
+}
+
+static void on_led_ctimer(void)
+{
+    led_interrupt_service(application_led_handle);
 }
 
 static void setup_button(void)
@@ -80,7 +96,7 @@ static void setup_button(void)
     button_config(&handle, AM_BSP_GPIO_BUTTON0, g_AM_BSP_GPIO_BUTTON0, 1);
     
     // The following register a single short press sequence to the button.
-    // Other press sequence are possible.  For example, a two presses sequence
+    // Other press sequences are possible.  For example, a two presses sequence
     // with a short press first followed by a long press would be
     // 
     // button_sequence_register(handle, 2, 0b10, on_button_pressed);
@@ -99,10 +115,11 @@ static void setup_led(void)
         .ui32Interrupt = APPLICATION_LED_TIMER_INTERRUPT,
         .ui32ActiveLow    = 0,
         .ui32Pin       = APPLICATION_LED,
+        .pfnInterruptService = on_led_ctimer,
     };
 
-    led_config(&led_cfg);
-    current_led_effect = LED_COMMAND_MAX;
+    led_config(&application_led_handle, &led_cfg);
+    current_led_effect = LED_EFFECT_BUILTIN_MAX;
 }
 
 static void application_task_setup(void)
@@ -141,7 +158,7 @@ static void application_task_loop(void)
 {
     vTaskDelay(pdMS_TO_TICKS(500));
     // if no LED effect is active, just toggle the LED
-    if (led_status_get() == LED_STATUS_IDLE)
+    if (led_status_get(application_led_handle) == LED_STATUS_IDLE)
     {
         am_hal_gpio_state_write(APPLICATION_LED, AM_HAL_GPIO_OUTPUT_TOGGLE);
     }
@@ -150,6 +167,7 @@ static void application_task_loop(void)
 static void application_task(void *parameter)
 {
 #if defined(CLI_ENABLE)
+    gpio_cli_register();
     application_task_cli_register();
 #endif
     application_task_setup();

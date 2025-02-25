@@ -110,6 +110,7 @@ if (CLI_ENABLE)
         CLI_SOURCES
         console_task.c
         application_task_cli.c
+        gpio_cli.c
         ui/led_task_cli.c
     )
 endif()
