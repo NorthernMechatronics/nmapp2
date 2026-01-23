@@ -112,7 +112,7 @@
                 "--target=ama3b1kk_kbr",
                 "--frequency=8MHz"
             ],
-            "preLaunchTask": "CMake: build",
+            "preLaunchTask": "CMake: build"
         },
         {
             "type": "cortex-debug",
@@ -147,7 +147,7 @@
                 "--target=ama3b1kk_kbr",
                 "--frequency=8MHz"
             ],
-            "preLaunchTask": "CMake: build",
+            "preLaunchTask": "CMake: build"
         },
         {
             "type": "cortex-debug",
@@ -165,7 +165,7 @@
                 "--target=ama3b2kk_kbr",
                 "--frequency=8MHz"
             ],
-            "preLaunchTask": "CMake: build",
+            "preLaunchTask": "CMake: build"
         },
         {
             "type": "cortex-debug",
@@ -200,7 +200,26 @@
                 "--target=ama3b2kk_kbr",
                 "--frequency=8MHz"
             ],
-            "preLaunchTask": "CMake: build",
+            "preLaunchTask": "CMake: build"
         },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "name": "AP510EVB Debug Launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/AP510EVB_Debug/${workspaceFolderBasename}_AP510EVB_Debug.axf",
+            "servertype": "jlink",
+            "device": "AP510NFA-CBR",
+            "interface": "swd",
+            "serialNumber": "",
+            "showDevDebugOutput": "raw",
+            "serverArgs": [
+                "-singlerun",
+                "-nogui",
+                "-rtos", "./GDBServer/RTOSPlugin_FreeRTOS"
+            ],
+            "preLaunchTask": "CMake: build"
+        }
+
     ]
 }

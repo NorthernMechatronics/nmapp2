@@ -50,11 +50,14 @@
     #define APPLICATION_LED_TIMER_NUMBER    (1)
     #define APPLICATION_LED_TIMER_SEGMENT   AM_HAL_CTIMER_TIMERA
     #define APPLICATION_LED_TIMER_INTERRUPT AM_HAL_CTIMER_INT_TIMERA1C0
-#else
+#elif defined(BSP_NM180100EVB)
     #define APPLICATION_LED AM_BSP_GPIO_LED1
     #define APPLICATION_LED_TIMER_NUMBER    (2)
     #define APPLICATION_LED_TIMER_SEGMENT   AM_HAL_CTIMER_TIMERB
     #define APPLICATION_LED_TIMER_INTERRUPT AM_HAL_CTIMER_INT_TIMERB2C0
+#elif defined (BSP_AP510EVB)
+    #define APPLICATION_LED AM_BSP_GPIO_LED0
+    #define APPLICATION_LED_TIMER_NUMBER    (0)
 #endif
 
 static TaskHandle_t application_task_handle;
@@ -85,10 +88,17 @@ static void on_button_pressed(void)
     }
 }
 
+#if defined(BSP_NM180100EVB) || defined(BSP_NM180410) || defined(BSP_NM180411)
 static void on_led_ctimer(void)
 {
     led_interrupt_service(application_led_handle);
 }
+#elif defined(BSP_AP510EVB)
+static void on_led_timer(am_hal_timer_compare_e eCompare)
+{
+    led_interrupt_service(application_led_handle);
+}
+#endif
 
 static void setup_button(void)
 {
@@ -108,8 +118,9 @@ static void setup_button(void)
 
 static void setup_led(void)
 {
+#if defined(BSP_NM180100EVB) || defined(BSP_NM180410) || defined(BSP_NM180411)
     // Configure the LED that is connected to a GPIO with CTIMER output.
-    const led_config_t led_cfg = {
+    const led_timer_config_t led_cfg = {
         .ui32Number    = APPLICATION_LED_TIMER_NUMBER,
         .ui32Segment   = APPLICATION_LED_TIMER_SEGMENT,
         .ui32Interrupt = APPLICATION_LED_TIMER_INTERRUPT,
@@ -117,6 +128,15 @@ static void setup_led(void)
         .ui32Pin       = APPLICATION_LED,
         .pfnInterruptService = on_led_ctimer,
     };
+#elif defined(BSP_AP510EVB)
+    const led_timer_config_t led_cfg = {
+        .ui32Number    = APPLICATION_LED_TIMER_NUMBER,
+        .ui32ActiveLow    = 1,
+        .ui32Pin       = APPLICATION_LED,
+        .pfnInterruptService = on_led_timer,
+    };
+
+#endif
 
     led_config(&application_led_handle, &led_cfg);
     current_led_effect = LED_EFFECT_BUILTIN_MAX;
@@ -124,20 +144,31 @@ static void setup_led(void)
 
 static void application_task_setup(void)
 {
-    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED0, g_AM_HAL_GPIO_OUTPUT);
+#if defined(BSP_NM180100EVB) || (BSP_NM180410) || defined(BSP_NM180411)
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED0, g_AM_BSP_GPIO_LED0);
     am_hal_gpio_state_write(AM_BSP_GPIO_LED0, AM_HAL_GPIO_OUTPUT_CLEAR);
 
-    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED1, g_AM_HAL_GPIO_OUTPUT);
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED1, g_AM_BSP_GPIO_LED1);
     am_hal_gpio_state_write(AM_BSP_GPIO_LED1, AM_HAL_GPIO_OUTPUT_CLEAR);
 
-    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED2, g_AM_HAL_GPIO_OUTPUT);
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED2, g_AM_BSP_GPIO_LED2);
     am_hal_gpio_state_write(AM_BSP_GPIO_LED2, AM_HAL_GPIO_OUTPUT_CLEAR);
 
-    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED3, g_AM_HAL_GPIO_OUTPUT);
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED3, g_AM_BSP_GPIO_LED3);
     am_hal_gpio_state_write(AM_BSP_GPIO_LED3, AM_HAL_GPIO_OUTPUT_CLEAR);
 
-    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED4, g_AM_HAL_GPIO_OUTPUT);
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED4, g_AM_BSP_GPIO_LED4);
     am_hal_gpio_state_write(AM_BSP_GPIO_LED4, AM_HAL_GPIO_OUTPUT_CLEAR);
+#elif defined(BSP_AP510EVB)
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED0, g_AM_BSP_GPIO_LED0);
+    am_hal_gpio_state_write(AM_BSP_GPIO_LED0, AM_HAL_GPIO_OUTPUT_SET);
+
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED1, g_AM_BSP_GPIO_LED1);
+    am_hal_gpio_state_write(AM_BSP_GPIO_LED1, AM_HAL_GPIO_OUTPUT_SET);
+
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_LED2, g_AM_BSP_GPIO_LED2);
+    am_hal_gpio_state_write(AM_BSP_GPIO_LED2, AM_HAL_GPIO_OUTPUT_SET);
+#endif
 
 // The Petal ecosystem has the ability to shutdown the LoRa radio.  In addition,
 // the Petal development board has the ability to shutdown the I/O level shifters

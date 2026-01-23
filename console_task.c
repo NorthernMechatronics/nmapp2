@@ -52,27 +52,36 @@
 #define MAX_INPUT_LEN    (256)
 
 #define STREAM_BUFFER_SIZE 64
-
+#define UART_BUFFER_SIZE 32
 static console_output_e console_output;
 
 static volatile StreamBufferHandle_t stream_buffer;
 
-static uint8_t uart_buffer[32];
+static uint8_t uart_buffer[UART_BUFFER_SIZE];
+#if defined(AM_PART_APOLLO3) || defined(AM_PART_APOLLO3P)
 static am_hal_uart_transfer_t uart_transfer = {
     .ui32Direction = AM_HAL_UART_READ,
     .pui8Data = uart_buffer,
-    .ui32NumBytes = 32,
+    .ui32NumBytes = UART_BUFFER_SIZE,
     .ui32TimeoutMs = 0,
     .pui32BytesTransferred = 0,
 };
+#elif defined(AM_PART_APOLLO510)
+#endif
 
 static char cmd_buffer[MAX_INPUT_LEN];
 static uint8_t cmd_size = 0;
 
 static const char cmd_prompt[] = "> ";
+#if defined(AM_PART_APOLLO3) || defined(AM_PART_APOLLO3P)
 static const char title_msg[] = "\r\n\r\n"
                                 "Northern Mechatronics\r\n"
                                 "NM1801xx Command Console\r\n\r\n";
+#elif defined(AM_PART_APOLLO510)
+static const char title_msg[] = "\r\n\r\n"
+                                "Northern Mechatronics\r\n"
+                                "Apollo510 Command Console\r\n\r\n";
+#endif
 
 static char cmd_hist[MAX_CMD_HIST_LEN][MAX_INPUT_LEN];
 static uint8_t cmd_hist_len = 0;
@@ -189,10 +198,13 @@ static void console_task_setup(void)
     }
     else if (console_output == CONSOLE_OUTPUT_UART)
     {
+#if defined(AM_PART_APOLLO3) || defined(AM_PART_APOLLO3P)
         am_bsp_buffered_uart_printf_enable();
         NVIC_SetPriority((IRQn_Type)(UART0_IRQn + AM_BSP_UART_PRINT_INST),
                         NVIC_configKERNEL_INTERRUPT_PRIORITY);
-
+#elif defined(AM_PART_APOLLO510)
+        am_bsp_buffered_uart_printf_enable();
+#endif
         memset(cmd_hist, 0, MAX_CMD_HIST_LEN * MAX_INPUT_LEN);
 
         stream_buffer = xStreamBufferCreate(STREAM_BUFFER_SIZE, 1);
@@ -328,6 +340,7 @@ void console_print_prompt()
     am_util_stdio_printf(cmd_prompt);
 }
 
+#if defined(AM_PART_APOLLO3) || defined(AM_PART_APOLLO3P)
 void am_uart_isr()
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -345,3 +358,22 @@ void am_uart_isr()
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
+#elif defined(AM_PART_APOLLO510)
+void am_uart_isr()
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    uint32_t received = 0;
+
+    am_bsp_buffered_uart_service();
+
+    received = am_bsp_buffered_uart_transfer((void *)uart_buffer, UART_BUFFER_SIZE);
+
+    if (received > 0)
+    {
+        xStreamBufferSendFromISR(
+            stream_buffer, (void *)uart_buffer, received, &xHigherPriorityTaskWoken);
+    }
+
+    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+}
+#endif
