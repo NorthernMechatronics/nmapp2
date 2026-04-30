@@ -108,11 +108,12 @@
             "serialNumber": "",
             "svdFile": "${workspaceFolder}/nmsdk2/hal/ambiq/pack/SVD/apollo3.svd",
             "showDevDebugOutput": "none",
+            "overrideGDBServerStartedRegex": "GDB server listening on port",
             "serverArgs": [
                 "--target=ama3b1kk_kbr",
                 "--frequency=8MHz"
             ],
-            "preLaunchTask": "CMake: build"
+            "preLaunchTask": "CMake: build",
         },
         {
             "type": "cortex-debug",
@@ -126,6 +127,7 @@
             "serialNumber": "",
             "svdFile": "${workspaceFolder}/nmsdk2/hal/ambiq/pack/SVD/apollo3.svd",
             "showDevDebugOutput": "none",
+            "overrideGDBServerStartedRegex": "GDB server listening on port",
             "serverArgs": [
                 "--target=ama3b1kk_kbr",
                 "--frequency=8MHz"
@@ -143,11 +145,12 @@
             "serialNumber": "",
             "svdFile": "${workspaceFolder}/nmsdk2/hal/ambiq/pack/SVD/apollo3.svd",
             "showDevDebugOutput": "none",
+            "overrideGDBServerStartedRegex": "GDB server listening on port",
             "serverArgs": [
                 "--target=ama3b1kk_kbr",
                 "--frequency=8MHz"
             ],
-            "preLaunchTask": "CMake: build"
+            "preLaunchTask": "CMake: build",
         },
         {
             "type": "cortex-debug",
@@ -161,11 +164,12 @@
             "serialNumber": "",
             "svdFile": "${workspaceFolder}/nmsdk2/hal/ambiq/pack/SVD/apollo3p.svd",
             "showDevDebugOutput": "none",
+            "overrideGDBServerStartedRegex": "GDB server listening on port",
             "serverArgs": [
                 "--target=ama3b2kk_kbr",
                 "--frequency=8MHz"
             ],
-            "preLaunchTask": "CMake: build"
+            "preLaunchTask": "CMake: build",
         },
         {
             "type": "cortex-debug",
@@ -179,6 +183,7 @@
             "serialNumber": "",
             "svdFile": "${workspaceFolder}/nmsdk2/hal/ambiq/pack/SVD/apollo3p.svd",
             "showDevDebugOutput": "none",
+            "overrideGDBServerStartedRegex": "GDB server listening on port",
             "serverArgs": [
                 "--target=ama3b2kk_kbr",
                 "--frequency=8MHz"
@@ -196,11 +201,12 @@
             "serialNumber": "",
             "svdFile": "${workspaceFolder}/nmsdk2/hal/ambiq/pack/SVD/apollo3p.svd",
             "showDevDebugOutput": "none",
+            "overrideGDBServerStartedRegex": "GDB server listening on port",
             "serverArgs": [
                 "--target=ama3b2kk_kbr",
                 "--frequency=8MHz"
             ],
-            "preLaunchTask": "CMake: build"
+            "preLaunchTask": "CMake: build",
         },
         {
             "type": "cortex-debug",
@@ -218,8 +224,7 @@
                 "-nogui",
                 "-rtos", "./GDBServer/RTOSPlugin_FreeRTOS"
             ],
-            "preLaunchTask": "CMake: build"
-        }
-
+            "preLaunchTask": "CMake: build",
+        },
     ]
 }
